@@ -1,46 +1,33 @@
 require 'nokogiri'
 require 'open-uri'
 
-def get_all_urls
-    val_d_oise = "http://annuaire-des-mairies.com/val-d-oise.html"
-    page = Nokogiri::HTML(URI.open(val_d_oise))
-    links = page.xpath('//*[@class="lientxt"]').map{|anchor| anchor["href"]}
-    return links
-end
+def scrap
+        
+    url = "http://annuaire-des-mairies.com/val-d-oise.html"
+    page = Nokogiri::HTML(URI.open(url))
+    noms = page.xpath('//a[@class="lientxt"]').map{|element| element = element.text}
 
-def get_names
-    val_d_oise = "http://annuaire-des-mairies.com/val-d-oise.html"
-    page = Nokogiri::HTML(URI.open(val_d_oise))
-    names = page.xpath('//*[@class="lientxt"]').map{|element| element = element.text}
-    return names
-end
+      town_urls_array = []
+     
+      arr_hash = []
 
-def scrape_addresses (links)
-    emails = []
-    links.each do |url|
-    page_url = "http://annuaire-des-mairies.com/#{url}"
-    page = Nokogiri::HTML(URI.open(page_url))
-    emails << page.xpath('/html/body/div/main/section[2]/div/table/tbody/tr[4]/td[2]').text
+     page.each do |url|
+        town_urls_array.push(url.text.delete_prefix('.').prepend('https://www.annuaire-des-mairies.com'))
+
     end
-    return emails
-end
 
-def final_array_def (emails,names)
-    final_array = []
-    emails.length.times do |i|
-    hash = {}
-    hash[names[i]] = emails[i]
-    final_array << hash
+    email = []
+
+    nb = town_urls_array.length
+
+    nb.times do |index|
+        page_mail = Nokogiri::HTML(URI.open(town_urls_array [index]))
+        emails = page_mail.xpath('/html/body/div/main/section[2]/div/table/tbody/tr[4]/td[2]').map{|element| element = element.text}
+        puts email
     end
-    return final_array
+
+puts noms
+    
 end
 
-def perform
-    links = get_all_urls
-    names = get_names
-    emails = scrape_addresses(links)
-    final_array = final_array_def(emails,names)
-    puts final_array
-end
-
-perform
+scrap
